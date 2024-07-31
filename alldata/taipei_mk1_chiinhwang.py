@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as pd 
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -8,15 +8,15 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.graphics.gofplots import qqplot
 import os
 
-# 請整後的 "台北二" 市場資料
-def taipei_mk2(file_path, market):
-     # 讀取CSV資料    
+# 請整後的 "台北一" 市場資料
+def taipei_mk1(file_path, market):
+    # 讀取CSV資料    
     data = pd.read_csv(file_path)
 
     # 將資料轉換為DataFrame
     df = pd.DataFrame(data)
     
-    # 篩選出 "台北二" 市場的所有資料並使用 .loc 進行操作
+    # 篩選出 "台北一" 市場的所有資料並使用 .loc 進行操作
     df_taipei = df.loc[df['市場'] == market].copy()
 
     # 將'日期'轉換為datetime格式
@@ -48,7 +48,7 @@ def taipei_mk2(file_path, market):
         }
 
     # 創建空的DataFrame來存儲結果
-    df_taipei_mk2 = pd.DataFrame()
+    df_taipei_mk1 = pd.DataFrame()
 
     # 迴圈處理每個年份的資料
     for year, year_data in year_datas.items():
@@ -56,9 +56,9 @@ def taipei_mk2(file_path, market):
         df_year_data = pd.DataFrame(year_data)
         df_year_data['日期'] = pd.to_datetime(df_year_data['日期'])
         
-        # 日期範圍（4月到9月）
+        # 生成完整的日期範圍（這裡假設所有資料都是4月到8月的）
         start_date = f'{year}-04-01'
-        end_date = f'{year}-09-30'
+        end_date = f'{year}-08-31'
         date_range = pd.date_range(start=start_date, end=end_date, freq='D')
         
         # 將日期設置為索引
@@ -66,7 +66,7 @@ def taipei_mk2(file_path, market):
 
         # 重新索引以包含所有日期
         df_year_data = df_year_data.reindex(date_range)
-        
+
         # 或者使用平均值插補
         df_year_data['平均價(元/公斤)'] = df_year_data['平均價(元/公斤)'].interpolate(method='linear')
         df_year_data['上價'] = df_year_data['上價'].interpolate(method='linear')
@@ -98,21 +98,21 @@ def taipei_mk2(file_path, market):
         df_year_data.rename(columns={'index': '日期'}, inplace=True)
         
         # 將處理好的數據添加到結果DataFrame中
-        df_taipei_mk2 = pd.concat([df_taipei_mk2, df_year_data], ignore_index=True)
-    return df_taipei_mk2
+        df_taipei_mk1 = pd.concat([df_taipei_mk1, df_year_data], ignore_index=True)
+    return df_taipei_mk1
 
 # 盒鬚圖, 資料分布狀況, 偏態＆峰度, 常態分佈圖
-def anal_mk1_data(df_taipei_mk2, output_dir='analy_irwin_imgs'):
+def anal_mk1_data(df_taipei_mk1, output_dir='analy_chiinhwang_imgs'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     # 調整欄位順序
-    df = df_taipei_mk2[['日期', '上價', '中價', '下價', '平均價(元/公斤)', '交易量(公斤)']]
+    df = df_taipei_mk1[['日期', '上價', '中價', '下價', '平均價(元/公斤)', '交易量(公斤)']]
 
     # 全部資料分布狀況
     all_descr = df.describe()
 
-    price = df_taipei_mk2['平均價(元/公斤)']
+    price = df_taipei_mk1['平均價(元/公斤)']
 
     # 特徵欄位: 平均價(元/公斤)
     anal_data = pd.DataFrame(price, columns=['平均價(元/公斤)'])
@@ -135,7 +135,7 @@ def anal_mk1_data(df_taipei_mk2, output_dir='analy_irwin_imgs'):
     plt.figure(figsize=(3, 5))
     plt.boxplot(anal_data['平均價(元/公斤)'], showmeans=True)
     plt.title('平均價(元/公斤)')
-    box_plot = os.path.join(output_dir, 'box_plot_2.png')
+    box_plot = os.path.join(output_dir, 'box_plot_1.png')
     plt.savefig(box_plot)
     plt.close()
 
@@ -156,7 +156,7 @@ def anal_mk1_data(df_taipei_mk2, output_dir='analy_irwin_imgs'):
     sns.histplot(anal_data['平均價(元/公斤)'], kde=True, element='step', stat="density", kde_kws=dict(cut=3), alpha=.4, edgecolor=(1, 1, 1, .4))
     plt.ylabel('密度')
     plt.xlabel('平均價(元/公斤)')
-    distribution_plot= os.path.join(output_dir, 'distribution_plot_2.png')
+    distribution_plot= os.path.join(output_dir, 'distribution_plot_1.png')
     plt.savefig(distribution_plot)
     plt.close()
 
@@ -164,13 +164,13 @@ def anal_mk1_data(df_taipei_mk2, output_dir='analy_irwin_imgs'):
 
 # 自相關圖 (ACF) & 偏自相關圖 (PACF), SARIMA模型視覺化
 # 繪製結果（分開展示訓練和測試數據), 殘差隨時間變化和 Q-Q 圖
-# 準備進行SARIMA建模的資料
-def time_series(df_taipei_mk2, output_dir='analy_irwin_imgs'):
+# 時間序列分析, 準備進行SARIMA建模的資料
+def time_series(df_taipei_mk1, output_dir='analy_chiinhwang_imgs'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
    
    # 目標值
-    y = df_taipei_mk2['平均價(元/公斤)']
+    y = df_taipei_mk1['平均價(元/公斤)']
 
     # 分割資料為訓練集和測試集
     train_size = int(len(y) * 0.8)
@@ -187,14 +187,14 @@ def time_series(df_taipei_mk2, output_dir='analy_irwin_imgs'):
     plot_pacf(y, ax=plt.gca(), lags=40)
     plt.title('偏自相關 (PACF)')
 
-    acf_pacf_plot = os.path.join(output_dir, 'acf_pacf_plot_2.png')
+    acf_pacf_plot = os.path.join(output_dir, 'acf_pacf_plot_1.png')
     plt.tight_layout()
     plt.savefig(acf_pacf_plot)
     plt.close()
 
     # 建立和訓練SARIMA模型
-    # 注意這裡設置了季節性順序為(1, 1, 1, 180)因為季節性是每年6個月（4到9月）
-    model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 180))
+    # 注意這裡設置了季節性順序為(1, 1, 1, 150)因為季節性是每年5個月（4到8月）
+    model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 150))
     model_fit = model.fit(method='lbfgs', maxiter=200, disp=False)
 
     # 預測
@@ -237,7 +237,7 @@ def time_series(df_taipei_mk2, output_dir='analy_irwin_imgs'):
     plt.title('SARIMA模型的時間序列分析和預測')
     plt.legend()
 
-    sarima_model_plot = os.path.join(output_dir, 'sarima_model_analysis_2.png')
+    sarima_model_plot = os.path.join(output_dir, 'sarima_model_analysis_1.png')
     plt.savefig(sarima_model_plot)
     plt.close()
 
@@ -260,7 +260,7 @@ def time_series(df_taipei_mk2, output_dir='analy_irwin_imgs'):
 
     plt.tight_layout()
 
-    combined_train_test_plot = os.path.join(output_dir, 'train_test_plot_2.png')
+    combined_train_test_plot = os.path.join(output_dir, 'train_test_plot_1.png')
     plt.savefig(combined_train_test_plot)
     plt.close()
 
@@ -278,7 +278,7 @@ def time_series(df_taipei_mk2, output_dir='analy_irwin_imgs'):
     qqplot(residuals, line='s', ax=plt.gca())
     plt.title('Q-Q Plot')
 
-    residuals_plot = os.path.join(output_dir, 'residuals_qq_plot_2.png')
+    residuals_plot = os.path.join(output_dir, 'residuals_qq_plot_1.png')
     plt.tight_layout()
     plt.savefig(residuals_plot)
     plt.close()
@@ -286,22 +286,22 @@ def time_series(df_taipei_mk2, output_dir='analy_irwin_imgs'):
     return acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot
 
 # 資料路徑
-file_path = '../mangodata/MangoIrwin.csv'
+file_path = '../mangodata/MangoChiinHwang.csv'
 
 # 市場
 market = input("請輸入哪一個市場：")
-df_taipei_mk2 = taipei_mk2(file_path, market)
-print(df_taipei_mk2)
+df_taipei_mk1 = taipei_mk1(file_path, market)
+print(df_taipei_mk1)
 print("=" * 100)
 
-all_descr, descr, box_plot_path, skew, kurt, distribution_plot_path = anal_mk1_data(df_taipei_mk2)
+all_descr, descr, box_plot_path, skew, kurt, distribution_plot_path = anal_mk1_data(df_taipei_mk1)
 print(all_descr)
 
 print("=" * 100)
 print(skew)
 print(kurt)
 
-acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk2, output_dir='analy_irwin_imgs')
+acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk1, output_dir='analy_chiinhwang_imgs')
 print("=" * 100)
 print(Training_MSE)
 print(Training_RMSE)

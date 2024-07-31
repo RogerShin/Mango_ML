@@ -102,7 +102,7 @@ def taipei_mk1(file_path, market):
     return df_taipei_mk1
 
 # 盒鬚圖, 資料分布狀況, 偏態＆峰度, 常態分佈圖
-def anal_mk1_data(df_taipei_mk1, output_dir='images'):
+def anal_mk1_data(df_taipei_mk1, output_dir='analy_irwin_imgs'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -164,8 +164,8 @@ def anal_mk1_data(df_taipei_mk1, output_dir='images'):
 
 # 自相關圖 (ACF) & 偏自相關圖 (PACF), SARIMA模型視覺化
 # 繪製結果（分開展示訓練和測試數據), 殘差隨時間變化和 Q-Q 圖
-# 準備進行SARIMA建模的資料
-def time_series(df_taipei_mk1, output_dir='images'):
+# 時間序列分析, 準備進行SARIMA建模的資料
+def time_series(df_taipei_mk1, output_dir='analy_irwin_imgs'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
    
@@ -260,7 +260,7 @@ def time_series(df_taipei_mk1, output_dir='images'):
 
     plt.tight_layout()
 
-    combined_train_test_plot = os.path.join(output_dir, 'train_test_predictions_plot_1.png')
+    combined_train_test_plot = os.path.join(output_dir, 'train_test_plot_1.png')
     plt.savefig(combined_train_test_plot)
     plt.close()
 
@@ -301,7 +301,7 @@ print("=" * 100)
 print(skew)
 print(kurt)
 
-acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk1, output_dir='images')
+acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk1, output_dir='analy_irwin_imgs')
 print("=" * 100)
 print(Training_MSE)
 print(Training_RMSE)

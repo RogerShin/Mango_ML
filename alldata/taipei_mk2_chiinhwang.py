@@ -58,7 +58,7 @@ def taipei_mk2(file_path, market):
         
         # 日期範圍（4月到9月）
         start_date = f'{year}-04-01'
-        end_date = f'{year}-09-30'
+        end_date = f'{year}-08-31'
         date_range = pd.date_range(start=start_date, end=end_date, freq='D')
         
         # 將日期設置為索引
@@ -102,7 +102,7 @@ def taipei_mk2(file_path, market):
     return df_taipei_mk2
 
 # 盒鬚圖, 資料分布狀況, 偏態＆峰度, 常態分佈圖
-def anal_mk1_data(df_taipei_mk2, output_dir='analy_irwin_imgs'):
+def anal_mk1_data(df_taipei_mk2, output_dir='analy_chiinhwang_imgs'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -165,7 +165,7 @@ def anal_mk1_data(df_taipei_mk2, output_dir='analy_irwin_imgs'):
 # 自相關圖 (ACF) & 偏自相關圖 (PACF), SARIMA模型視覺化
 # 繪製結果（分開展示訓練和測試數據), 殘差隨時間變化和 Q-Q 圖
 # 準備進行SARIMA建模的資料
-def time_series(df_taipei_mk2, output_dir='analy_irwin_imgs'):
+def time_series(df_taipei_mk2, output_dir='analy_chiinhwang_imgs'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
    
@@ -193,8 +193,8 @@ def time_series(df_taipei_mk2, output_dir='analy_irwin_imgs'):
     plt.close()
 
     # 建立和訓練SARIMA模型
-    # 注意這裡設置了季節性順序為(1, 1, 1, 180)因為季節性是每年6個月（4到9月）
-    model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 180))
+    # 注意這裡設置了季節性順序為(1, 1, 1, 150)因為季節性是每年6個月（4到8月）
+    model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 150))
     model_fit = model.fit(method='lbfgs', maxiter=200, disp=False)
 
     # 預測
@@ -301,7 +301,7 @@ print("=" * 100)
 print(skew)
 print(kurt)
 
-acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk2, output_dir='analy_irwin_imgs')
+acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk2, output_dir='analy_chiinhwang_imgs')
 print("=" * 100)
 print(Training_MSE)
 print(Training_RMSE)
