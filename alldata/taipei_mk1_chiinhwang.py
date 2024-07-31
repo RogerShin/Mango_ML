@@ -8,7 +8,7 @@ from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.graphics.gofplots import qqplot
 import os
 
-# 請整後的 "台北一" 市場資料
+# 清整後的 "台北一" 市場資料
 def taipei_mk1(file_path, market):
     # 讀取CSV資料    
     data = pd.read_csv(file_path)
