@@ -139,8 +139,16 @@ app.layout = html.Div([
 )
 
 def update_table(selected_mango, selected_market):
+    
     if selected_mango == '請選擇種類' or selected_market == '請選擇市場':
-        return [{}]*12  # Return empty data if not sele
+        # 使用無資料狀態進行測試
+        columns = []
+        data = []
+        descr_columns = []
+        descr_data = []
+        # 返回無資料狀態，其他圖片和計算結果可以返回空值
+        return columns, data, descr_columns, descr_data, '', '', '', '', '', '', '', ''
+
     if selected_mango == '金煌':
         df_taipei_mk = chiinhwang_taipei_mk1(selected_market)
         if selected_market == '台北一':
@@ -168,7 +176,7 @@ def update_table(selected_mango, selected_market):
 
     # 重設索引並將其作為一個新欄位添加到DataTable
     descr_reset = all_descr.reset_index()
-
+    
     # 更新全部資料分布狀況表格的 columns 和 data
     descr_columns = [{"name": i, "id": i} for i in descr_reset.columns]
     descr_data = descr_reset.reset_index().to_dict('records')
