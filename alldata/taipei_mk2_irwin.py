@@ -13,7 +13,7 @@ def taipei_mk2(market):
 
     # 資料路徑
     file_path = '../mangodata/MangoIrwin.csv'
-     # 讀取CSV資料    
+    # 讀取CSV資料    
     data = pd.read_csv(file_path)
 
     # 將資料轉換為DataFrame

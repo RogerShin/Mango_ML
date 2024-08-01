@@ -10,6 +10,7 @@ import os
 
 # 清整後的 "台北一" 市場資料
 def taipei_mk1(market):
+    
     # 資料路徑
     file_path = '../mangodata/MangoIrwin.csv'
     # 讀取CSV資料    
