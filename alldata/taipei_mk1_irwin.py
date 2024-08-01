@@ -1,5 +1,7 @@
 import pandas as pd 
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # 使用 Agg 後端來避免 GUI 問題
 import matplotlib.pyplot as plt
 import seaborn as sns
 from statsmodels.tsa.statespace.sarimax import SARIMAX
@@ -9,10 +11,13 @@ from statsmodels.graphics.gofplots import qqplot
 import os
 
 # 清整後的 "台北一" 市場資料
-def taipei_mk1(market):
+def irwin_taipei_mk1(market):
     
     # 資料路徑
-    file_path = '../mangodata/MangoIrwin.csv'
+    # file_path = '../mangodata/MangoIrwin.csv'
+    # 使用絕對路徑
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_dir, '..', 'mangodata', 'MangoIrwin.csv')
     # 讀取CSV資料    
     data = pd.read_csv(file_path)
 
@@ -105,7 +110,7 @@ def taipei_mk1(market):
     return df_taipei_mk1
 
 # 盒鬚圖, 資料分布狀況, 偏態＆峰度, 常態分佈圖
-def anal_mk1_data(df_taipei_mk1, output_dir='analy_irwin_imgs'):
+def irwin_anal_mk1_data(df_taipei_mk1, output_dir='assets'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -138,7 +143,7 @@ def anal_mk1_data(df_taipei_mk1, output_dir='analy_irwin_imgs'):
     plt.figure(figsize=(3, 5))
     plt.boxplot(anal_data['平均價(元/公斤)'], showmeans=True)
     plt.title('平均價(元/公斤)')
-    box_plot = os.path.join(output_dir, 'box_plot_1.png')
+    box_plot = os.path.join(output_dir, 'irwin_box_plot_1.png')
     plt.savefig(box_plot)
     plt.close()
 
@@ -159,16 +164,16 @@ def anal_mk1_data(df_taipei_mk1, output_dir='analy_irwin_imgs'):
     sns.histplot(anal_data['平均價(元/公斤)'], kde=True, element='step', stat="density", kde_kws=dict(cut=3), alpha=.4, edgecolor=(1, 1, 1, .4))
     plt.ylabel('密度')
     plt.xlabel('平均價(元/公斤)')
-    distribution_plot= os.path.join(output_dir, 'distribution_plot_1.png')
+    distribution_plot= os.path.join(output_dir, 'irwin_distribution_plot_1.png')
     plt.savefig(distribution_plot)
     plt.close()
 
-    return  all_descr, descr, box_plot, skew, kurt, distribution_plot
+    return  all_descr, box_plot, skew, kurt, distribution_plot
 
 # 自相關圖 (ACF) & 偏自相關圖 (PACF), SARIMA模型視覺化
 # 繪製結果（分開展示訓練和測試數據), 殘差隨時間變化和 Q-Q 圖
 # 時間序列分析, 準備進行SARIMA建模的資料
-def time_series(df_taipei_mk1, output_dir='analy_irwin_imgs'):
+def irwin_time_series1(df_taipei_mk1, output_dir='assets'):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
    
@@ -190,14 +195,14 @@ def time_series(df_taipei_mk1, output_dir='analy_irwin_imgs'):
     plot_pacf(y, ax=plt.gca(), lags=40)
     plt.title('偏自相關 (PACF)')
 
-    acf_pacf_plot = os.path.join(output_dir, 'acf_pacf_plot_1.png')
+    acf_pacf_plot = os.path.join(output_dir, 'irwin_acf_pacf_plot_1.png')
     plt.tight_layout()
     plt.savefig(acf_pacf_plot)
     plt.close()
 
     # 建立和訓練SARIMA模型
     # 注意這裡設置了季節性順序為(1, 1, 1, 180)因為季節性是每年6個月（4到9月）
-    model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 180))
+    model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 6))
     model_fit = model.fit(method='lbfgs', maxiter=200, disp=False)
 
     # 預測
@@ -240,7 +245,7 @@ def time_series(df_taipei_mk1, output_dir='analy_irwin_imgs'):
     plt.title('SARIMA模型的時間序列分析和預測')
     plt.legend()
 
-    sarima_model_plot = os.path.join(output_dir, 'sarima_model_analysis_1.png')
+    sarima_model_plot = os.path.join(output_dir, 'irwin_sarima_model_analysis_1.png')
     plt.savefig(sarima_model_plot)
     plt.close()
 
@@ -263,7 +268,7 @@ def time_series(df_taipei_mk1, output_dir='analy_irwin_imgs'):
 
     plt.tight_layout()
 
-    combined_train_test_plot = os.path.join(output_dir, 'train_test_plot_1.png')
+    combined_train_test_plot = os.path.join(output_dir, 'irwin_train_test_plot_1.png')
     plt.savefig(combined_train_test_plot)
     plt.close()
 
@@ -281,31 +286,31 @@ def time_series(df_taipei_mk1, output_dir='analy_irwin_imgs'):
     qqplot(residuals, line='s', ax=plt.gca())
     plt.title('Q-Q Plot')
 
-    residuals_plot = os.path.join(output_dir, 'residuals_qq_plot_1.png')
+    residuals_plot = os.path.join(output_dir, 'irwin_residuals_qq_plot_1.png')
     plt.tight_layout()
     plt.savefig(residuals_plot)
     plt.close()
 
     return acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot
 
-# 市場
-market = input("請輸入哪一個市場：")
-df_taipei_mk1 = taipei_mk1(market)
-print(df_taipei_mk1)
-print("=" * 100)
+# # 市場
+# market = input("請輸入哪一個市場：")
+# df_taipei_mk1 = taipei_mk1(market)
+# print(df_taipei_mk1)
+# print("=" * 100)
 
-all_descr, descr, box_plot_path, skew, kurt, distribution_plot_path = anal_mk1_data(df_taipei_mk1)
-print(all_descr)
+# all_descr, descr, box_plot_path, skew, kurt, distribution_plot_path = anal_mk1_data(df_taipei_mk1)
+# print(all_descr)
 
-print("=" * 100)
-print(skew)
-print(kurt)
+# print("=" * 100)
+# print(skew)
+# print(kurt)
 
-acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk1, output_dir='analy_irwin_imgs')
-print("=" * 100)
-print(Training_MSE)
-print(Training_RMSE)
-print(Training_MAE)
-print(Testing_MSE)
-print(Testing_RMSE)
-print(Testing_MAE)
+# acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk1, output_dir='analy_irwin_imgs')
+# print("=" * 100)
+# print(Training_MSE)
+# print(Training_RMSE)
+# print(Training_MAE)
+# print(Testing_MSE)
+# print(Testing_RMSE)
+# print(Testing_MAE)
