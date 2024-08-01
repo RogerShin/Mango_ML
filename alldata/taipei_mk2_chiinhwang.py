@@ -9,7 +9,9 @@ from statsmodels.graphics.gofplots import qqplot
 import os
 
 # 清整後的 "台北二" 市場資料
-def taipei_mk2(file_path, market):
+def taipei_mk2(market):
+    # 資料路徑
+    file_path = '../mangodata/MangoIrwin.csv'
      # 讀取CSV資料    
     data = pd.read_csv(file_path)
 
@@ -285,12 +287,9 @@ def time_series(df_taipei_mk2, output_dir='analy_chiinhwang_imgs'):
 
     return acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot
 
-# 資料路徑
-file_path = '../mangodata/MangoIrwin.csv'
-
 # 市場
 market = input("請輸入哪一個市場：")
-df_taipei_mk2 = taipei_mk2(file_path, market)
+df_taipei_mk2 = taipei_mk2(market)
 print(df_taipei_mk2)
 print("=" * 100)
 
