@@ -20,11 +20,12 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='mango-variety-dropdown',
             options=[
+                {'label': '請選擇種類', 'value': '請選擇種類'},
                 {'label': '愛文', 'value': '愛文'},
                 {'label': '金煌', 'value': '金煌'}
             ],
             # 預設值
-            value='愛文'  
+            value='請選擇種類'  
         )
     ], style={'margin-bottom': '20px'}),
 
@@ -34,11 +35,12 @@ app.layout = html.Div([
         dcc.Dropdown(
         id='market-dropdown',
             options=[
+                {'label': '請選擇市場', 'value': '請選擇市場'},
                 {'label': '台北一', 'value': '台北一'},
                 {'label': '台北二', 'value': '台北二'}
             ],
             # 預設值
-            value='台北一'
+            value='請選擇市場'
         )
     ]),
 
@@ -137,7 +139,8 @@ app.layout = html.Div([
 )
 
 def update_table(selected_mango, selected_market):
-
+    if selected_mango == '請選擇種類' or selected_market == '請選擇市場':
+        return [{}]*12  # Return empty data if not sele
     if selected_mango == '金煌':
         df_taipei_mk = chiinhwang_taipei_mk1(selected_market)
         if selected_market == '台北一':

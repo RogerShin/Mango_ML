@@ -200,8 +200,8 @@ def chiinhwang_time_series1(df_taipei_mk1, output_dir='assets'):
 
     # 建立和訓練SARIMA模型
     # 注意這裡設置了季節性順序為(1, 1, 1, 150)因為季節性是每年5個月（4到8月）
-    model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 6))
-    model_fit = model.fit(method='lbfgs', maxiter=200, disp=False)
+    model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 1, 1, 150))
+    model_fit = model.fit(method='powell', maxiter=200, disp=False)
 
     # 預測
     y_pred_train = model_fit.predict(start=train.index[0], end=train.index[-1], dynamic=False)
@@ -286,25 +286,3 @@ def chiinhwang_time_series1(df_taipei_mk1, output_dir='assets'):
     plt.close()
 
     return acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot
-
-# # 市場
-# market = input("請輸入哪一個市場：")
-# df_taipei_mk1 = taipei_mk1(market)
-# print(df_taipei_mk1)
-# print("=" * 100)
-
-# all_descr, descr, box_plot_path, skew, kurt, distribution_plot_path = anal_mk1_data(df_taipei_mk1)
-# print(all_descr)
-
-# print("=" * 100)
-# print(skew)
-# print(kurt)
-
-# acf_pacf_plot, Training_MSE, Training_RMSE, Training_MAE, Testing_MSE, Testing_RMSE, Testing_MAE, sarima_model_plot, combined_train_test_plot, residuals_plot = time_series(df_taipei_mk1, output_dir='analy_chiinhwang_imgs')
-# print("=" * 100)
-# print(Training_MSE)
-# print(Training_RMSE)
-# print(Training_MAE)
-# print(Testing_MSE)
-# print(Testing_RMSE)
-# print(Testing_MAE)
